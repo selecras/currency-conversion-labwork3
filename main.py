@@ -1,29 +1,65 @@
-dollars = 80.19
-euro = 91.44
+import requests
+import os
 
-print('Конвертер валют')
-print('''1. RUB -> USD
-2. USD -> RUB
-3. RUB -> EUR
-4. EUR -> RUB
-5. Выход''')
+def clear() -> None:
+    os.system('cls' if os.name == 'nt' else 'clear')
 
+
+def try_except(text: str) -> float | None:
+    while True:
+        try:
+            a = float(input(text))
+        except Exception as e:
+            print("Некорректный ввод")
+            continue
+        return a
+
+
+url = "https://www.cbr-xml-daily.ru/daily_json.js"
+
+try:
+    response = requests.get(url)
+    data = response.json()
+
+    USD = data['Valute']["USD"]['Value']
+    EUR = data['Valute']["EUR"]['Value']
+except Exception as e:
+    print(f"Ошибка при получении данных: {e}")
+    exit()
+
+clear()
+print('''Конвертер валют
+1. RUB -> USD
+2. RUB -> EUR
+3. USD -> RUB
+4. EUR -> RUB 
+5. Выход
+''')
 while True:
-    a = input("Ваш выбор: ")
-    while a not in ('1', '2', '3', '4', '5'):
+    choice = input("Ваш выбор: ")
+    while choice not in ('1','2','3','4','5'):
         print("Некорректный выбор")
-        a = input("Ваш выбор: ")
-    if a == '1':
-        rub = float(input("Введите количество рублей: "))
-        print(round(rub / dollars, 2))
-    elif a == '2':
-        usd = float(input("Введите количество бачей: "))
-        print(round(usd * dollars, 2))
-    elif a == '3':
-        rub = float(input("Введите количество рублей: "))
-        print(round(rub / euro, 2))
-    elif a == '4':
-        eur = float(input("Введите количество евро: "))
-        print(round(eur * euro, 2))
+        choice = input("Ваш выбор: ")
+    clear()
+
+    if choice in ('1', '2'):
+        rub = try_except("Введите количество рублей: ")
+        res = round(rub / (USD, EUR)[int(choice) - 1], 2)
+        print(f"{rub}₽ = {res}{"$€"[int(choice) - 1]}")
+    elif choice == '3':
+        usd = try_except("Введите количество долларов: ")
+        res = round(usd * USD, 2)
+        print(f"{usd}$ = {res}₽")
+    elif choice == '4':
+        eur = try_except("Введите количество евро: ")
+        res = round(eur * EUR, 2)
+        print(f"{eur}€ = {res}₽")
     else:
         break
+
+    print('''1. RUB -> USD
+2. RUB -> EUR
+3. USD -> RUB
+4. EUR -> RUB 
+5. Выход
+''')
